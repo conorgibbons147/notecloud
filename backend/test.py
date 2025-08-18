@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
+# building a test API without the database for now just to get the endpoints and concepts down, will translate to mysql db using docker in main.py
+
 app = FastAPI()
 
 # for now just store notes in memory before setting up a db
@@ -14,7 +16,7 @@ class NoteIn(BaseModel): # using pydantic base model here to make sure the text 
 def root():
     return {"API": "NoteCloud is running"}
 
-@app.get("/notes") # shows us the notes
+@app.get("/notes") # shows us all the notes
 def list_notes(): 
     return NOTES
 
@@ -33,3 +35,18 @@ def delete_note(note_id: int): # gets id and passes it as an int into the functi
             NOTES.pop(i) # remove the note from the list
             return {"ok": True} # and return that it worked
     raise HTTPException(status_code=404, detail="Note not found") # if id not found give this error using HTTPException
+
+@app.post("/notes/{note_id}") # updates a note based on note id
+def update_notes(note_id: int, note: NoteIn): # gets id and the new note text
+    for i, n in enumerate(NOTES): # loop through the existing notes
+        if n["id"] == note_id: # if id matches
+            NOTES[i] = {"id": note_id, "text": note.text} # note will be new note with same id
+            return NOTES[i] # return updated note
+    raise HTTPException(status_code=404, detail="Note not found")  # error if note not found
+
+@app.get("/notes/{note_id}") # gets a specific note based on note id
+def get_note(note_id: int): # gets id and passes it as an int into the function
+    for n in NOTES: # loop through the existing notes
+        if n["id"] == note_id: # if id matches
+            return n # return the note
+    raise HTTPException(status_code=404, detail="Note not found")
