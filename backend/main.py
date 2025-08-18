@@ -14,7 +14,10 @@ app = FastAPI() # define fastapi app
 @app.on_event("startup") # make a db on startup if it doesn't exist
 def startup():
     with engine.begin() as conn:
-        conn.execute(text("""CREATE TABLE IF NOT EXISTS notes (id INT AUTO_INCREMENT PRIMARY KEY, text VARCHAR(255) NOT NULL)"""))
+        conn.execute(text("CREATE TABLE IF NOT EXISTS notes (id INT AUTO_INCREMENT PRIMARY KEY, text VARCHAR(200) NOT NULL)"))
+                            # create table called notes if one doesn't exist w 2 columns, id and text
+                            # id is the key, it auto increments and is an int
+                            # text is a string between 1 and 200 characters and must contain something
 
 @app.get("/") # root
 def root():
