@@ -1,9 +1,20 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import create_engine, text
+import os 
 
-# setup the mysql db connection using root and password
-engine = create_engine("mysql+pymysql://root:root@localhost:3306/notehub", echo=True)
+# define sensitive env variables 
+DB_HOST = os.getenv("DB_HOST", "localhost") 
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASS = os.getenv("DB_PASS", "root")
+DB_NAME = os.getenv("DB_NAME", "notecloud")
+
+# setting up the db by connecting to rds using sqlalchemy
+engine = create_engine(
+    f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}:3306/{DB_NAME}",
+    echo=True,
+    pool_pre_ping=True,
+)
 
 
 class NoteIn(BaseModel): # use pydantic to check inputs
